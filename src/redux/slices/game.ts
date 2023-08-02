@@ -15,8 +15,10 @@ export type PlayerState = {
   }
   angle: string
   score: number
+  bestScore?: number
   spawnIntervalId?: NodeJS.Timer
   playerIntervalId?: NodeJS.Timer
+  volume: number
 }
 
 const initialState: PlayerState = {
@@ -24,6 +26,7 @@ const initialState: PlayerState = {
   player: { hitbox1: null, hitbox2: null, hitbox3: null },
   angle: '0',
   score: 0,
+  volume: 0.4,
 }
 
 export const gameSlice = createSlice({
@@ -35,6 +38,9 @@ export const gameSlice = createSlice({
     },
     pause: (state) => {
       state.isPLaying = false
+    },
+    switchVolume: (state, action: PayloadAction<number>) => {
+      state.volume = action.payload
     },
     setSpawnIntervalId: (state, action: PayloadAction<NodeJS.Timer>) => {
       state.spawnIntervalId = action.payload
@@ -61,6 +67,9 @@ export const gameSlice = createSlice({
     updateScore: (state) => {
       state.score += 1
     },
+    updateBestScore: (state) => {
+      if (state.score > (state?.bestScore ?? 0)) state.bestScore = state.score
+    },
     resetGame: (state) => {
       state.player = { hitbox1: null, hitbox2: null, hitbox3: null }
       state.angle = '0'
@@ -72,10 +81,12 @@ export const gameSlice = createSlice({
 export const {
   play,
   pause,
+  switchVolume,
   setSpawnIntervalId,
   setPlayerIntervalId,
   updatePosition,
   updateAngle,
+  updateBestScore,
   updateScore,
   resetGame,
 } = gameSlice.actions

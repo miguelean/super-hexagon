@@ -13,13 +13,14 @@ import {
   selectPlayerH2,
   selectPlayerH3,
 } from '~redux/selectors/player'
-import { pause, updateScore } from '~redux/slices/game'
+import { selectIsVolumeEnabled } from '~redux/selectors/volume'
+import { pause, updateBestScore, updateScore } from '~redux/slices/game'
 
 type LineProps = {
-  angle: number
+  audio: HTMLAudioElement
 }
 
-export const Line = ({ angle }: LineProps) => {
+export const Line = ({ audio }: LineProps) => {
   const dispatch = useDispatch()
   const ref = useRef<HTMLDivElement>(null)
 
@@ -35,6 +36,7 @@ export const Line = ({ angle }: LineProps) => {
   const playerIntervalId = useSelector(selectPlayerIntervalId)
   const spawnIntervalId = useSelector(selectSpawnIntervalId)
   const isPlaying = useSelector(selectIsPLaying)
+  const isVolumeEnabled = useSelector(selectIsVolumeEnabled)
 
   const [isTouching, setIsTouching] = useState(false)
   const [shouldRender, setShouldRender] = useState(true)
@@ -119,17 +121,19 @@ export const Line = ({ angle }: LineProps) => {
 
   useEffect(() => {
     if (isTouching) {
-      clearInterval(playerIntervalId)
-      clearInterval(spawnIntervalId)
       dispatch(pause())
-      const audio = new Audio(`${process.env.NEXT_PUBLIC_HOST}/game-over.wav`)
-      audio.play()
+      dispatch(updateBestScore())
+      isVolumeEnabled && audio.play()
     }
-  }, [dispatch, isTouching])
+  }, [audio, dispatch, isTouching, isVolumeEnabled])
 
   useEffect(() => {
-    !isPlaying && clearTimeout(timeoutId)
-  }, [isPlaying])
+    if (!isPlaying) {
+      clearTimeout(timeoutId)
+      clearInterval(playerIntervalId)
+      clearInterval(spawnIntervalId)
+    }
+  }, [isPlaying, playerIntervalId, spawnIntervalId, timeoutId])
 
   if (!shouldRender || !isPlaying) return null
 

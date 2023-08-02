@@ -24,6 +24,11 @@ export const SuperHexagon = () => {
 
   const triangles = useMemo(() => new Array(t1, t2, t3, t4, t5, t6), [])
 
+  const audio = useMemo(
+    () => new Audio(`${process.env.NEXT_PUBLIC_HOST}/game-over.wav`),
+    []
+  )
+
   const handleSpawn = useCallback(() => {
     const randomId = Math.floor(Math.random() * 6)
 
@@ -33,18 +38,17 @@ export const SuperHexagon = () => {
       div.className = 'h-0'
       createRoot(div).render(
         <StoreProvider>
-          <Line angle={idx * 60} />
+          <Line audio={audio} />
         </StoreProvider>
       )
       triangle.current?.appendChild(div)
     })
-  }, [triangles])
+  }, [triangles, audio])
 
   useEffect(() => {
     const spawnIntervalId = setInterval(handleSpawn, 1800)
     dispatch(setSpawnIntervalId(spawnIntervalId))
-    //handleSpawn()
-  }, [handleSpawn])
+  }, [dispatch, handleSpawn])
 
   useEffect(() => {
     const playerIntervalId = setInterval(() => {

@@ -64,7 +64,7 @@ export const Player = () => {
     }
 
     ref.current && dispatch(updatePosition({ hitbox1, hitbox2, hitbox3 }))
-  }, [degres])
+  }, [degres, dispatch])
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 800)
